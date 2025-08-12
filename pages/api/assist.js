@@ -147,7 +147,9 @@ function stripHtml(s) {
     .replace(/<[^>]+>/g, ' ');
 }
 
-function toAbs(base, href){ try { return new URL(href, base).toString(); } catch { return null; } }
+function toAbs(base, href) {
+  try { return new URL(href, base).toString(); } catch { return null; }
+}
 
 function scoreDoc(q, doc) {
   const t = doc.text.toLowerCase();
