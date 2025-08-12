@@ -83,4 +83,88 @@ export default function Home(){
         body{
           margin:0;
           font:15px/1.45 system-ui,-apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-          color:var(-
+          color:var(--fg);
+          background:
+            radial-gradient(1200px 800px at 10% -10%, #1a2b6b33, transparent),
+            radial-gradient(1400px 900px at 110% 10%, #00ffb022, transparent),
+            linear-gradient(180deg, #0b1220 0%, #070b15 100%);
+        }
+        .shell{min-height:100%; display:grid; grid-template-rows:auto 1fr auto; gap:18px; padding:24px;}
+        .chrome{
+          display:flex; align-items:center; gap:10px; padding:10px 14px;
+          border:1px solid var(--edge); border-radius:14px; background:rgba(255,255,255,.04);
+          box-shadow:0 10px 30px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.06);
+          backdrop-filter: blur(10px) saturate(140%);
+        }
+        .dot{width:10px;height:10px;border-radius:50%; background:var(--accent); box-shadow:0 0 12px var(--accent)}
+        .title{font-weight:800; letter-spacing:.2px; text-transform:uppercase; color:var(--muted); font-size:13px}
+        .pill{
+          font-size:12px; color:var(--fg); border:1px solid var(--edge); padding:6px 10px; border-radius:999px; text-decoration:none;
+          background:rgba(255,255,255,.04); box-shadow:inset 0 1px 0 rgba(255,255,255,.06)
+        }
+        .pill:hover{background:rgba(255,255,255,.07)}
+        .spacer{flex:1}
+
+        .glass{
+          display:grid; grid-template-rows:1fr auto; height:70vh; border-radius:var(--radius);
+          border:1px solid var(--edge-2); background:var(--glass);
+          backdrop-filter: blur(18px) saturate(160%);
+          box-shadow: 0 18px 60px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08);
+          overflow:hidden
+        }
+
+        .messages{padding:16px; overflow-y:auto}
+        .row{margin:12px 0; display:grid; gap:8px}
+        .row .meta{font-size:11px; color:var(--muted)}
+        .row.user{justify-items:end}
+        .row.user .bubble{
+          background: linear-gradient(180deg, #1d3b5e, #10243d);
+          border:1px solid rgba(255,255,255,.12);
+          box-shadow: 0 6px 18px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06)
+        }
+        .row.assistant .bubble{
+          background: rgba(255,255,255,.05);
+          border:1px solid rgba(255,255,255,.12);
+          box-shadow: 0 6px 18px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.06)
+        }
+        .bubble{max-width:720px; padding:12px 14px; border-radius:14px; white-space:pre-wrap}
+        .typing{font-size:13px; color:var(--muted)}
+
+        .composer{
+          display:flex; gap:10px; padding:12px; border-top:1px solid var(--edge-2);
+          background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.02));
+        }
+        .composer textarea{
+          flex:1; min-height:70px; resize:vertical; color:var(--fg);
+          background: rgba(255,255,255,.04); border:1px solid var(--edge);
+          border-radius:12px; padding:12px; outline:none;
+          box-shadow: inset 0 2px 10px rgba(0,0,0,.25)
+        }
+        .composer textarea:focus{
+          border-color:#2ee6a0;
+          box-shadow: 0 0 0 3px rgba(46,230,160,.15), inset 0 2px 10px rgba(0,0,0,.28)
+        }
+        .composer button{
+          border:1px solid var(--edge-2); padding:10px 14px; border-radius:12px;
+          background: linear-gradient(180deg, #1c2a3c, #121b2a); color:var(--fg); cursor:pointer; font-weight:600;
+          box-shadow: 0 8px 20px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08)
+        }
+        .composer button:hover{filter:brightness(1.08)}
+        .composer button:disabled{opacity:.6; cursor:not-allowed}
+
+        .hint{font-size:12px; color:var(--muted); text-align:center}
+        @media (max-width: 640px){ .glass{height: 75vh;} }
+      `}</style>
+    </main>
+  );
+}
+
+function escapeToHtml(s){
+  // basic escape, preserve blank lines
+  const esc = s
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/\\n\\n/g,'<br/><br/>');
+  return esc;
+}
