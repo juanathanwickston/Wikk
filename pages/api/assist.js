@@ -1,11 +1,9 @@
-// pages/api/assist.js — Minimal DIAG version (no KB)
+// pages/api/assist.js  — DIAG version that supports GET (for sanity) and POST (for chat)
 export default async function handler(req, res) {
-  // Helpful GET so you can hit the route in a browser without a 405
+  // Helpful GET so the browser doesn't show 405 and confuse us
   if (req.method === 'GET') {
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-    return res
-      .status(200)
-      .send('WIKK API is alive. Use POST with JSON: {"question":"...","brand":"WIKK"}');
+    return res.status(200).send('onePOS Assist API is alive. Use POST with JSON: {"question":"..."}');
   }
 
   if (req.method !== 'POST') {
@@ -19,7 +17,7 @@ export default async function handler(req, res) {
       return res.status(500).send('Missing GROQ_API_KEY in Vercel env vars.');
     }
 
-    const { question = 'Ping?', brand = 'WIKK' } = req.body || {};
+    const { question = 'Ping?', brand = 'onePOS' } = req.body || {};
     const system = `You are a concise ${brand} POS support assistant. Reply in numbered steps.`;
 
     const payload = {
@@ -35,9 +33,9 @@ export default async function handler(req, res) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${key}`,
+        'Authorization': `Bearer ${key}`
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     });
 
     if (!resp.ok) {
