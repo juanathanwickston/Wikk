@@ -1,7 +1,7 @@
-// pages/api/assist.js — WIKK + onePOS KB (hardened RAG)
+// pages/api/assist.js — WIKK + onePOS KB (hardened RAG, fixed stripHtml)
 const KB_ROOT = 'https://onepos.zohodesk.com/portal/en/kb/onepos/end-user';
 const ALLOWLIST = ['onepos.zohodesk.com'];
-const MAX_PAGES = 20;        // keep small for fast cold starts; raise later
+const MAX_PAGES = 20;        // small for fast cold starts; raise later
 const MAX_SNIPPETS = 6;      // how many snippets to feed the model
 const MODEL = 'llama-3.1-8b-instant';
 
@@ -139,7 +139,45 @@ function extract(html, baseUrl) {
   return { title, text, links };
 }
 
+// ✅ FIXED VERSION
 function stripHtml(s) {
   return s
-    .replace(/<script[\s\S]*?<\/script>/gi,'')
-    .replace(/<style[\s\S]*?<\/style>/gi,*
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<[^>]+>/g, ' ');
+}
+
+function toAbs(base, href){ try { return new URL(href, base).toString(); } catch { return null; } }
+
+function scoreDoc(q, doc) {
+  const t = doc.text.toLowerCase();
+  const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
+  let s = 0;
+  for (const w of terms) {
+    const m = t.match(new RegExp(w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'g'));
+    if (m) s += Math.sqrt(m.length + 0.5);
+  }
+  if (terms.length > 1 && t.includes(terms.join(' '))) s += 1.2;
+  return s;
+}
+
+function scoreAndSelectSnippets(q, docs, k) {
+  return (docs || [])
+    .map(d => ({ d, s: scoreDoc(q, d) }))
+    .filter(x => x.s > 0)
+    .sort((a,b) => b.s - a.s)
+    .slice(0, k)
+    .map(({ d }) => ({
+      url: d.url,
+      title: d.title || 'KB Article',
+      excerpt: d.text.slice(0, 400) + (d.text.length > 400 ? '…' : '')
+    }));
+}
+
+/* ---------- tiny fetch with timeout ---------- */
+function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
+  return fetch(url, { ...options, signal: controller.signal })
+    .finally(() => clearTimeout(id));
+}
