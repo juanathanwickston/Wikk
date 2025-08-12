@@ -7,7 +7,7 @@ const SUPPORT_URL =
 export default function Home(){
   const [q, setQ] = useState("");
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "Welcome to onePOS Assist. Ask anything about printers, KDS, menu sync, payments, or networking. I’ll reply with decisive, numbered steps." }
+    { role: "assistant", content: "Welcome to WIKK. Ask anything about printers, KDS, menu sync, payments, or networking. I’ll reply with decisive, numbered steps." }
   ]);
   const [loading, setLoading] = useState(false);
   const listRef = useRef(null);
@@ -41,7 +41,7 @@ export default function Home(){
     <main className="shell">
       <div className="chrome">
         <div className="dot" aria-hidden />
-        <div className="title">onePOS Assist</div>
+        <div className="title">WIKK</div>
         <div className="spacer"/>
         <a className="pill" href={SUPPORT_URL} target="_blank" rel="noreferrer">Open Ticket ↗</a>
       </div>
