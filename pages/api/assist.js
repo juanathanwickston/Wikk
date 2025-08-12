@@ -1,11 +1,11 @@
-// pages/api/assist.js — WIKK + onePOS KB (hardened RAG, fixed stripHtml)
+// pages/api/assist.js — WIKK + onePOS KB (hardened RAG, fixed)
 const KB_ROOT = 'https://onepos.zohodesk.com/portal/en/kb/onepos/end-user';
 const ALLOWLIST = ['onepos.zohodesk.com'];
-const MAX_PAGES = 20;        // small for fast cold starts; raise later
-const MAX_SNIPPETS = 6;      // how many snippets to feed the model
+const MAX_PAGES = 20;
+const MAX_SNIPPETS = 6;
 const MODEL = 'llama-3.1-8b-instant';
 
-let KB_INDEX = null;         // in-memory cache per lambda instance
+let KB_INDEX = null;
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
@@ -23,7 +23,6 @@ export default async function handler(req, res) {
     const { question, context = {}, brand = 'onePOS' } = req.body || {};
     if (!question) return res.status(400).send('Missing "question".');
 
-    // Build/refresh KB index every 12h
     if (!KB_INDEX || Date.now() - (KB_INDEX.ts || 0) > 12 * 60 * 60 * 1000) {
       KB_INDEX = await buildKbIndexSafe();
     }
@@ -45,7 +44,7 @@ export default async function handler(req, res) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
       body: JSON.stringify(payload)
-    }, 20_000);
+    }, 20000);
 
     if (!ai.ok) {
       const text = await ai.text();
@@ -108,7 +107,7 @@ async function buildKbIndex() {
     seen.add(url);
     if (!isAllowed(url)) continue;
 
-    const html = await fetchText(url, 10_000);
+    const html = await fetchText(url, 10000);
     if (!html) continue;
 
     const { title, text, links } = extract(html, url);
@@ -139,7 +138,6 @@ function extract(html, baseUrl) {
   return { title, text, links };
 }
 
-// ✅ FIXED VERSION
 function stripHtml(s) {
   return s
     .replace(/<script[\s\S]*?<\/script>/gi, '')
@@ -147,9 +145,7 @@ function stripHtml(s) {
     .replace(/<[^>]+>/g, ' ');
 }
 
-function toAbs(base, href) {
-  try { return new URL(href, base).toString(); } catch { return null; }
-}
+function toAbs(base, href){ try { return new URL(href, base).toString(); } catch { return null; } }
 
 function scoreDoc(q, doc) {
   const t = doc.text.toLowerCase();
@@ -176,7 +172,6 @@ function scoreAndSelectSnippets(q, docs, k) {
     }));
 }
 
-/* ---------- tiny fetch with timeout ---------- */
 function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeoutMs);
